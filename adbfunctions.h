@@ -19,6 +19,7 @@ private:
     QStringList storage_locations; // $EXTERNAL_STORAGE and $SECONDARY_STORAGE
     QString adb_device_serial;
     QStringList split_to_list(QString input_string, QStringList delimiters);
+    QString slice(QStringList string_list, int from_inclusive, int to_exclusive, QChar join_character=' ');
     DataStructures::DeviceInfo device_info;
     DataStructures::WirelessDeviceInfo wireless_device_info;
     QString root_directory;
@@ -41,6 +42,8 @@ public:
     QStringList get_storage_directories();
 
     DataStructures::DirectoryItem get_directory_item(const QString &current_directory, const QString &directory_item_string);
+    void create_directory(const QString &directory_name, const QString &parent_directory);
+    void delete_directory_items(const QList<DataStructures::DirectoryItem> &directory_items);
 
 public slots:
     void get_connected_devices();
@@ -53,6 +56,8 @@ signals:
     void finished_connecting_to_device(const int &status);
     void finished_connecting_to_wireless_device(const int &status);
     void finished_getting_directory_content(const QList<DataStructures::DirectoryItem> &directory_items);
+    void finished_creating_directory(const int &status);
+    void finished_deleting_directory_items(const int &status);
     void finished();
 };
 

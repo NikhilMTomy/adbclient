@@ -43,10 +43,12 @@ QVariant DirectoryContentModel::data(const QModelIndex &index, int role) const {
         return QVariant();
     switch(role) {
     case Qt::DisplayRole:
-        if (col == 0) {
+        switch(col) {
+        case 0:
             // name
             return QString(directory_items[row].get_name());
-        } else {
+            break;
+        case 1:
             // size
             QString string_size;
             double size = directory_items[row].get_size();
@@ -72,7 +74,6 @@ QVariant DirectoryContentModel::data(const QModelIndex &index, int role) const {
             }
             return string_size;
         }
-
     case Qt::FontRole:
         //if (row == 0) {
         //    QFont bold_font;
@@ -86,11 +87,22 @@ QVariant DirectoryContentModel::data(const QModelIndex &index, int role) const {
         //}
         break;
     case Qt::TextAlignmentRole:
-        if (col == 0)
+        switch(col) {
+        case 0:
             return Qt::AlignLeft + Qt::AlignVCenter;
-        else
+        case 1:
             return Qt::AlignRight + Qt::AlignVCenter;
+        }
+    case Qt::DecorationRole:
+        if (col==0) {
+            if (directory_items[row].get_type() == DataStructures::DirectoryItemType::File) {
+                return QApplication::style()->standardIcon(QStyle::SP_FileIcon);
+            } else {
+                return QApplication::style()->standardIcon(QStyle::SP_DirIcon);
+            }
+        }
     }
+
     return QVariant();
 }
 bool DirectoryContentModel::setData(const QModelIndex &index, const QVariant &value, int role) {

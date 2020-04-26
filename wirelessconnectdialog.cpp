@@ -5,7 +5,13 @@ WirelessConnectDialog::WirelessConnectDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::WirelessConnectDialog) {
     ui->setupUi(this);
-    this->ui->button_box->button(QDialogButtonBox::Ok)->setEnabled(false);
+    QString port = this->ui->line_edit_port->text();
+    QString ip = this->ui->line_edit_ip->text();
+    if (this->validate_ip(ip) && this->validate_port(port)) {
+        this->ui->button_box->button(QDialogButtonBox::Ok)->setEnabled(true);
+    } else {
+        this->ui->button_box->button(QDialogButtonBox::Ok)->setEnabled(false);
+    }
 }
 WirelessConnectDialog::~WirelessConnectDialog() {
     delete ui;
@@ -50,11 +56,6 @@ void WirelessConnectDialog::on_button_box_rejected() {
 }
 void WirelessConnectDialog::on_line_edit_ip_textChanged(const QString &ip) {
     QString port = this->ui->line_edit_port->text();
-//    qDebug() << "Validating";
-//    qDebug() << "Address " << ip << ":" << port;
-//    qDebug() << "IP :  " << (validate_ip(ip) ? "Valid" : "Invalid");
-//    qDebug() << "PORT :  " << (validate_port(port) ? "Valid" : "Invalid");
-
     if (this->validate_ip(ip) && this->validate_port(port)) {
         this->ui->button_box->button(QDialogButtonBox::Ok)->setEnabled(true);
     } else {
@@ -63,10 +64,6 @@ void WirelessConnectDialog::on_line_edit_ip_textChanged(const QString &ip) {
 }
 void WirelessConnectDialog::on_line_edit_port_textChanged(const QString &port) {
     QString ip = this->ui->line_edit_ip->text();
-//    qDebug() << "Validating";
-//    qDebug() << "Address " << ip << ":" << port;
-//    qDebug() << "IP :  " << (validate_ip(ip) ? "Valid" : "Invalid");
-//    qDebug() << "PORT :  " << (validate_port(port) ? "Valid" : "Invalid");
     if (this->validate_ip(ip) && this->validate_port(port)) {
         this->ui->button_box->button(QDialogButtonBox::Ok)->setEnabled(true);
     } else {

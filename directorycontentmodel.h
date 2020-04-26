@@ -8,6 +8,9 @@
 #include <QFont>
 #include <QBrush>
 #include <QDebug>
+#include <QIcon>
+#include <QStyle>
+#include <QApplication>
 
 #include <directoryitem.h>
 

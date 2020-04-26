@@ -27,6 +27,7 @@ SOURCES += \
     connectdialog.cpp \
     directorycontentmodel.cpp \
     directoryitem.cpp \
+    newfolderdialog.cpp \
     wirelessdeviceinfo.cpp \
     deviceinfo.cpp \
     main.cpp \
@@ -38,6 +39,7 @@ HEADERS += \
     connectdialog.h \
     directorycontentmodel.h \
     directoryitem.h \
+    newfolderdialog.h \
     wirelessdeviceinfo.h \
     deviceinfo.h \
     mainwindow.h \
@@ -46,6 +48,7 @@ HEADERS += \
 FORMS += \
     connectdialog.ui \
     mainwindow.ui \
+    newfolderdialog.ui \
     wirelessconnectdialog.ui
 
 # Default rules for deployment.

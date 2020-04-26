@@ -51,7 +51,16 @@ QStringList ADBFunctions::split_to_list(QString input_string, QStringList delimi
     }
     return list;
 }
-
+QString ADBFunctions::slice(QStringList string_list, int from_inclusive, int to_exclusive, QChar join_character) {
+    QString concatenated_string;
+    for (int i=from_inclusive; i<to_exclusive; ++i) {
+        if (i > from_inclusive) {
+            concatenated_string += join_character;
+        }
+        concatenated_string += string_list[i];
+    }
+    return concatenated_string;
+}
 DataStructures::DeviceInfo ADBFunctions::get_device_info() {
     return this->device_info;
 }
@@ -181,7 +190,7 @@ DataStructures::DirectoryItem ADBFunctions::get_directory_item(const QString &cu
      */
     return DataStructures::DirectoryItem(
         current_directory,
-        directory_item_string_contents[7],
+        slice(directory_item_string_contents, 7, directory_item_string_contents.length()),
         type,
         directory_item_string_contents[4].toLong()
     );
@@ -213,9 +222,62 @@ void ADBFunctions::get_directory_contents(const QString &current_directory) {
     QStringList output_lines = this->split_to_list(output, QStringList() << "\n" << "\r");
     // start from 1 to skip total size row
     for (int i=1; i< output_lines.length(); ++i) {
-        DataStructures::DirectoryItem directory_item = get_directory_item(current_directory, output_lines[i]);
+        DataStructures::DirectoryItem directory_item = get_directory_item(full_path, output_lines[i]);
         directory_contents.append(directory_item);
     }
-    //DataStructures::DirectoryItem directory_item("/mnt/sdcard", "sample.txt", DataStructures::DirectoryItemType::File, 4096);
+    directory_contents = DataStructures::DirectoryItem::sort_directory_items(directory_contents);
     emit this->finished_getting_directory_content(directory_contents);
+}
+void ADBFunctions::create_directory(const QString &directory_name, const QString &parent_directory) {
+    QString full_path = this->root_directory + parent_directory + directory_name;
+    QProcess adb_process;
+    adb_process.setProgram("adb");
+    QStringList arguments;
+    arguments.append("-s");
+    if (this->connection_mode == CONNECTION_MODE_WIRED)
+        arguments.append(device_info.device_serial);
+    else
+        arguments.append(wireless_device_info.toString());
+    arguments.append("shell");
+    arguments.append("exec");
+    arguments.append("mkdir");
+    arguments.append(full_path);
+
+    adb_process.setArguments(arguments);
+    adb_process.start();
+    adb_process.waitForFinished();
+
+    if (adb_process.exitStatus() == QProcess::NormalExit) {
+        emit finished_creating_directory(adb_process.exitCode());
+    } else {
+        emit finished_creating_directory(-1);
+    }
+}
+void ADBFunctions::delete_directory_items(const QList<DataStructures::DirectoryItem> &directory_items) {
+    QProcess adb_process;
+    adb_process.setProgram("adb");
+    QStringList arguments;
+    arguments.append("-s");
+    if (this->connection_mode == CONNECTION_MODE_WIRED)
+        arguments.append(device_info.device_serial);
+    else
+        arguments.append(wireless_device_info.toString());
+    arguments.append("shell");
+    arguments.append("exec");
+    arguments.append("rm");
+    arguments.append("-r");
+
+    for (const DataStructures::DirectoryItem &directory_item: directory_items) {
+        arguments.append(directory_item.get_parent_path() + directory_item.get_name());
+    }
+
+    adb_process.setArguments(arguments);
+    adb_process.start();
+    adb_process.waitForFinished();
+
+    if (adb_process.exitStatus() == QProcess::NormalExit) {
+        emit finished_deleting_directory_items(adb_process.exitCode());
+    } else {
+        emit finished_deleting_directory_items(-1);
+    }
 }
